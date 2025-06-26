@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Casino Roulette - Linear Style</title>
+  <style>
+    body {
+      background: #1a1a1a;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 40px;
+    }
+    h1 {
+      color: gold;
+    }
+    .roulette-container {
+      width: 90%;
+      max-width: 800px;
+      margin: 20px auto;
+      overflow: hidden;
+      border: 4px solid gold;
+      border-radius: 10px;
+      position: relative;
+      height: 100px;
+      background: #111;
+    }
+    .wheel {
+      display: flex;
+      transition: transform 10s ease-out;
+      height: 100px;
+      align-items: center;
+    }
+    .slot {
+      min-width: 100px;
+      height: 100px;
+      line-height: 100px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+      color: white;
+      border-right: 1px solid #444;
+    }
+    .red { background: red; }
+    .black { background: black; }
+    .green { background: green; }
+    .pointer {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 100%;
+      background: yellow;
+      z-index: 10;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background: gold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    #history {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Casino Roulette</h1>
+  <div class="roulette-container">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel"></div>
+  </div>
+  <button onclick="spin()">SPIN</button>
+  <div id="result"></div>
+  <div id="history">Last numbers: <span id="last6">-</span></div>
+  <audio id="spinSound" src="https://cdn.pixabay.com/audio/2023/03/01/audio_c3b18760d4.mp3"></audio>
+
+  <script>
+    const wheel = document.getElementById("wheel");
+    const result = document.getElementById("result");
+    const history = document.getElementById("last6");
+    const spinSound = document.getElementById("spinSound");
+
+    const numbers = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13,
+      36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31,
+      9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+
+    const redNumbers = [32,19,21,25,27,36,30,23,5,16,1,14,9,18,7,12,3];
+    let historyNumbers = [];
+
+    // Generate the wheel (repeated for smooth animation)
+    let extendedNumbers = numbers.concat(numbers).concat(numbers);
+    extendedNumbers.forEach(n => {
+      const slot = document.createElement("div");
+      slot.className = "slot";
+      slot.textContent = n;
+      if (n === 0) slot.classList.add("green");
+      else if (redNumbers.includes(n)) slot.classList.add("red");
+      else slot.classList.add("black");
+      wheel.appendChild(slot);
+    });
+
+    function spin() {
+      spinSound.play();
+      const resultIndex = Math.floor(Math.random() * numbers.length);
+      const slotWidth = 100;
+      const stopOffset = (resultIndex + numbers.length) * slotWidth;
+
+      wheel.style.transition = "transform 10s ease-out";
+      wheel.style.transform = `translateX(-${stopOffset}px)`;
+
+      setTimeout(() => {
+        const winningNumber = numbers[resultIndex];
+        const color = (winningNumber === 0) ? 'green' : redNumbers.includes(winningNumber) ? 'red' : 'black';
+        result.innerHTML = `Result: <b style="color:${color}">${winningNumber}</b>`;
+
+        historyNumbers.unshift(winningNumber);
+        if (historyNumbers.length > 6) historyNumbers.pop();
+        history.textContent = historyNumbers.join(', ');
+      }, 10000);
+    }
+  </script>
+</body>
+</html>
